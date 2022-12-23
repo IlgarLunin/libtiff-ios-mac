@@ -50,6 +50,16 @@ else ifeq ($(platform), macos)
 	platform_version_mins = macosx-version-min=$(MACOS_DEPLOY_TGT)
 	archs_all = x86_64
 	arch_names_all = x86_64-apple-darwin
+# make platform=macos_arm64
+else ifeq ($(platform), macos_arm64)
+	PLATFORM_PREFIX=macos_arm64
+	SDK_MACOS_PATH=$(shell xcrun --sdk macosx --show-sdk-path)
+	MACOS_DEPLOY_TGT="10.13"
+
+	sdks = $(SDK_MACOS_PATH)
+	platform_version_mins = macosx-version-min=$(MACOS_DEPLOY_TGT)
+	archs_all = arm64
+	arch_names_all = arm64-apple-darwin
 # make platform=all
 else ifeq ($(platform), all)
 	# we will call make for all platforms, so nothing to do for now
@@ -86,7 +96,7 @@ dependant_libs = libpng libjpeg libtiff
 
 common_cflags = -arch $(call swap, $*, $(arch_names_all), $(archs_all)) -pipe -no-cpp-precomp -isysroot $$SDKROOT -m$(call swap, $*, $(arch_names_all), $(platform_version_mins)) -O2 -fembed-bitcode
 
-ifneq (,$(filter $(platform),ios macos))
+ifneq (,$(filter $(platform),ios macos macos_arm64))
 .PHONY : all
 all : $(dependant_libs)
 else
@@ -94,6 +104,7 @@ else
 all :
 	$(MAKE) platform=ios
 	$(MAKE) platform=macos
+	$(MAKE) platform=macos_arm64
 endif
 
 #######################
